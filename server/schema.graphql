@@ -1,0 +1,169 @@
+type Query {
+  ### User accounts
+  me: User
+
+  ### Books
+  "Returns the number of books"
+  bookCount: Int!
+  "Returns all books"
+  allBooks(author: String, genre: String): [Book!]!
+
+  ### Authors
+  "Returns the number of authors"
+  authorCount: Int!
+  "Returns all authors"
+  allAuthors: [Author!]!
+}
+
+type Mutation {
+  ### Accounts
+  "Creates a new user profile"
+  createUser(username: String!, favoriteGenre: String!): CreateUserResponse!
+  "Authorizes a user with username and password"
+  login(username: String!, password: String!): LoginResponse!
+
+  ### Books
+  "Creates a new book"
+  addBook(book: NewBook!): AddBookMutationResponse!
+
+  ### Authors
+  "Edits author's date of birth"
+  editAuthor(name: String!, setBornTo: Int!): UpdateAuthorResponse!
+}
+
+type Subscription {
+  "Returns a newly created book through WebSocket connection"
+  bookAdded: Book!
+}
+
+interface MutationResponse {
+  "Similar to HTTP status code, represents the status of the mutation"
+  code: String!
+  "Indicates whether the mutation was successful"
+  success: Boolean!
+  "Human-readable message for the UI"
+  message: String!
+}
+
+#### User accounts
+
+"""
+Represents user's common properties
+"""
+type User {
+  id: ID!
+  "The user's username"
+  username: String!
+  "The user's favorite literary genre"
+  favoriteGenre: String!
+}
+
+"Data for authorization header"
+type Token {
+  "JWT Token"
+  value: String!
+}
+
+"""
+The response after creating a user
+"""
+type CreateUserResponse implements MutationResponse {
+  "Similar to HTTP status code, represents the status of the mutation"
+  code: String!
+  "Indicates whether the mutation was successful"
+  success: Boolean!
+  "Human-readable message for the UI"
+  message: String!
+  "Created User"
+  user: User
+}
+
+"""
+The response after login
+"""
+type LoginResponse implements MutationResponse {
+  "Similar to HTTP status code, represents the status of the mutation"
+  code: String!
+  "Indicates whether the mutation was successful"
+  success: Boolean!
+  "Human-readable message for the UI"
+  message: String!
+  "JWT Token"
+  token: Token
+}
+
+#### Books
+
+"""
+Represents book's common properties
+"""
+type Book {
+  id: ID!
+  "The book's title"
+  title: String!
+  "The book's author"
+  author: Author!
+  "The year of publishing for the book"
+  published: Int!
+  "A list of literary genre for the book"
+  genres: [String!]!
+}
+
+"""
+Fields that used for creating a new book
+"""
+input NewBook {
+  "The book's title"
+  title: String!
+  "The book's author"
+  author: String!
+  "The year of publishing for the book"
+  published: Int!
+  "A list of literary genre for the book"
+  genres: [String!]!
+}
+
+"""
+The response after creating a book
+"""
+type AddBookMutationResponse implements MutationResponse {
+  "Similar to HTTP status code, represents the status of the mutation"
+  code: String!
+  "Indicates whether the mutation was successful"
+  success: Boolean!
+  "Human-readable message for the UI"
+  message: String!
+  "Created book"
+  book: Book
+  "Created author if it doesn't exist before"
+  author: Author
+}
+
+#### Authors
+
+"""
+Represents author's common properties
+"""
+type Author {
+  id: ID!
+  "The author's name"
+  name: String!
+  "The author's year of birth"
+  born: Int
+  "The number of books written by author"
+  bookCount: Int
+}
+
+"""
+The response after updating an author
+"""
+type UpdateAuthorResponse implements MutationResponse {
+  "Similar to HTTP status code, represents the status of the mutation"
+  code: String!
+  "Indicates whether the mutation was successful"
+  success: Boolean!
+  "Human-readable message for the UI"
+  message: String!
+  "Edited author"
+  author: Author
+}
